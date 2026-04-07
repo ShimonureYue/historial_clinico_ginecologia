@@ -1,0 +1,59 @@
+"""FastAPI application entry point."""
+
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+from .routers import auth_router, pacientes_router, consultas_router
+from .routers import antecedentes_pp_router, antecedentes_pnp_router, antecedentes_hf_router
+from .routers import antecedentes_go_router, interrogatorio_router
+from .routers import usuarios_router, medicamentos_router, colposcopias_router
+from .routers import dashboard_router
+
+app = FastAPI(
+    title="Expediente Clínico API",
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(dashboard_router.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(auth_router.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(pacientes_router.router, prefix="/api/pacientes", tags=["Pacientes"])
+app.include_router(consultas_router.router, prefix="/api/consultas", tags=["Consultas"])
+app.include_router(medicamentos_router.router, prefix="/api/medicamentos", tags=["Medicamentos"])
+app.include_router(colposcopias_router.router, prefix="/api/colposcopias", tags=["Colposcopías"])
+app.include_router(interrogatorio_router.router, prefix="/api/interrogatorio", tags=["Interrogatorio"])
+app.include_router(antecedentes_pp_router.router, prefix="/api/antecedentes-patologicos", tags=["Antecedentes Patológicos"])
+app.include_router(antecedentes_pnp_router.router, prefix="/api/antecedentes-no-patologicos", tags=["Antecedentes No Patológicos"])
+app.include_router(antecedentes_hf_router.router, prefix="/api/antecedentes-heredo-familiares", tags=["Antecedentes Heredo Familiares"])
+app.include_router(antecedentes_go_router.router, prefix="/api/antecedentes-gineco-obstetricos", tags=["Antecedentes Gineco-Obstétricos"])
+app.include_router(usuarios_router.router, prefix="/api/usuarios", tags=["Usuarios"])
+
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok"}
+
+
+# ── Serve frontend static files in production ──
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "static")
+
+if os.path.isdir(STATIC_DIR):
+    app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Serve the SPA index.html for any non-API route."""
+        file_path = os.path.join(STATIC_DIR, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
