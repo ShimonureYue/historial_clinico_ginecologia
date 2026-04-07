@@ -176,40 +176,40 @@ export default function PacientesPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Datos personales */}
               <div>
-                <h4 className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-2 tracking-wider">Datos Personales</h4>
+                <h4 className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-2 tracking-wider">Datos Personales</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Nombre(s)</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Nombre(s)</label>
                     <input value={form.nombre} onChange={(e) => updateField('nombre', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" required />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Apellido Paterno</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Apellido Paterno</label>
                     <input value={form.a_paterno} onChange={(e) => updateField('a_paterno', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" required />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Apellido Materno</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Apellido Materno</label>
                     <input value={form.a_materno} onChange={(e) => updateField('a_materno', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">CURP</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">CURP</label>
                     <input value={form.curp} onChange={(e) => updateField('curp', e.target.value.toUpperCase())} maxLength={18}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary font-mono" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Email</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Email</label>
                     <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Fecha de Nacimiento</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Fecha de Nacimiento</label>
                     <input type="date" value={form.fecha_nacimiento} onChange={(e) => updateField('fecha_nacimiento', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" required />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Género</label>
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1">Género</label>
                     <select value={form.genero} onChange={(e) => updateField('genero', e.target.value)}
                       className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
                       <option value="F">Femenino</option>
@@ -249,13 +249,13 @@ export default function PacientesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-700 text-left">
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">ID</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Nombre completo</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden md:table-cell">CURP</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden md:table-cell">Género</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden lg:table-cell">Fecha Nac.</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden lg:table-cell">Teléfono</th>
-                  <th className="px-4 py-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden xl:table-cell">Ciudad</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">ID</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Nombre completo</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden md:table-cell">CURP</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden md:table-cell">Género</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden lg:table-cell">Fecha Nac.</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden lg:table-cell">Teléfono</th>
+                  <th className="px-4 py-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 hidden xl:table-cell">Ciudad</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>

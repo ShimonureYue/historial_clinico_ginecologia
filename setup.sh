@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# setup.sh — Configura el entorno de desarrollo en cualquier maquina (macOS/Linux)
+# Uso: bash setup.sh
+set -e
+
+cd "$(dirname "$0")"
+PROJECT_ROOT="$(pwd)"
+
+echo "================================================"
+echo " Expediente Clinico Ginecologia — Setup"
+echo " Directorio: $PROJECT_ROOT"
+echo "================================================"
+echo
+
+# ── 1. Buscar Python 3.14+ ──────────────────────────────
+find_python() {
+    if command -v pyenv &>/dev/null; then
+        local pyenv_ver
+        pyenv_ver="$(pyenv version-name 2>/dev/null || true)"
+        if [[ "$pyenv_ver" == 3.14* ]]; then
+            echo "$(pyenv which python3 2>/dev/null || pyenv which python 2>/dev/null)"
+            return
+        fi
+    fi
+    for cmd in python3.14 python3 python; do
+        if command -v "$cmd" &>/dev/null; then
+            local ver
+            ver="$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+')"
+            local major="${ver%%.*}"
+            local minor="${ver#*.}"
+            if [[ "$major" -eq 3 && "$minor" -ge 14 ]]; then
+                command -v "$cmd"
+                return
+            fi
+        fi
+    done
+    return 1
+}
+
+PYTHON_BIN="$(find_python)" || {
+    echo "ERROR: No se encontro Python 3.14+"
+    echo "  Instala con pyenv:  pyenv install 3.14"
+    echo "  O descarga desde:   https://www.python.org/downloads/"
+    exit 1
+}
+
+echo "[1/6] Python encontrado: $PYTHON_BIN ($("$PYTHON_BIN" --version 2>&1))"
+
+# ── 2. Crear/recrear venv ────────────────────────────────
+if [ -d ".venv" ]; then
+    if ! .venv/bin/python3 --version &>/dev/null 2>&1; then
+        echo "  .venv roto (Python no encontrado), recreando..."
+        rm -rf .venv
+    else
+        VENV_PY="$(.venv/bin/python3 --version 2>&1 | grep -oE '[0-9]+\.[0-9]+')"
+        if [[ "$VENV_PY" != "3.14" ]]; then
+            echo "  .venv tiene Python $VENV_PY, recreando para 3.14..."
+            rm -rf .venv
+        else
+            echo "  .venv existe y es valido (Python $VENV_PY)"
+        fi
+    fi
+fi
+
+if [ ! -d ".venv" ]; then
+    echo "[2/6] Creando entorno virtual..."
+    "$PYTHON_BIN" -m venv .venv
+else
+    echo "[2/6] Entorno virtual existente OK"
+fi
+
+# ── 3. Instalar dependencias Python ──────────────────────
+echo "[3/6] Instalando dependencias Python..."
+.venv/bin/pip install --upgrade pip -q
+.venv/bin/pip install -r backend/requirements.txt -q
+
+echo "[4/6] Verificando base de datos..."
+DB_FILE="database/expediente_clinico.db"
+if [ ! -f "$DB_FILE" ]; then
+    echo "  Base de datos no encontrada."
+    mkdir -p database
+    echo "  Creando estructura de tablas..."
+    .venv/bin/python scripts/migrate_structure.py
+    echo "  Creando datos de ejemplo..."
+    .venv/bin/python scripts/migrate_data.py --seed
+    echo "  Base de datos lista: $DB_FILE"
+else
+    echo "  Base de datos encontrada: $DB_FILE"
+fi
+
+# ── 5. Archivo .env ──────────────────────────────────────
+echo "[5/6] Verificando archivo .env..."
+if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "  .env creado desde .env.example"
+        echo "  Edita .env para configurar SECRET_KEY y credenciales AWS"
+    fi
+else
+    echo "  .env encontrado"
+fi
+
+echo "[6/6] Configurando frontend..."
+
+# Crear frontend/.env si no existe
+if [ ! -f "frontend/.env" ]; then
+    echo "VITE_API_PORT=8000" > frontend/.env
+    echo "  frontend/.env creado (VITE_API_PORT=8000)"
+fi
+
+# Instalar deps de Node si disponible
+if [ -d "frontend/node_modules" ]; then
+    echo "  node_modules ya existe"
+elif command -v node &>/dev/null; then
+    echo "  Instalando dependencias npm..."
+    (cd frontend && npm install --silent 2>/dev/null) || echo "  AVISO: npm install fallo. Ejecuta manualmente: cd frontend && npm install"
+else
+    echo "  AVISO: Node.js no encontrado. Para el frontend ejecuta:"
+    echo "    cd frontend && npm install"
+fi
+
+echo
+echo "================================================"
+echo " Setup completado!"
+echo "================================================"
+echo
+echo "Para iniciar el backend:"
+echo "  source .venv/bin/activate"
+echo "  uvicorn backend.src.main:app --reload --port 8000"
+echo
+echo "Para iniciar el frontend (en otra terminal):"
+echo "  cd frontend && npm run dev"
+echo

@@ -33,7 +33,7 @@ function BarChart({ data, label, color = 'bg-primary' }) {
           const h = Math.max((d.total / max) * barH, 6)
           return (
             <div key={d.mes} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{d.total}</span>
+              <span className="text-[12px] font-bold text-slate-600 dark:text-slate-300">{d.total}</span>
               <div className={clsx('w-full rounded-t-md', color)} style={{ height: `${h}px` }} />
               <span className="text-[9px] text-slate-400">{fmtMonth(d.mes)}</span>
             </div>
@@ -54,7 +54,7 @@ function KpiCard({ icon: Icon, label, value, sub, color = 'text-primary', bg = '
       <div className="min-w-0">
         <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-none">{value}</p>
         <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{label}</p>
-        {sub && <p className="text-[10px] text-slate-400 dark:text-slate-500">{sub}</p>}
+        {sub && <p className="text-[12px] text-slate-400 dark:text-slate-500">{sub}</p>}
       </div>
     </div>
   )
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 text-[10px] text-slate-400 uppercase">
+                <tr className="border-b border-slate-100 dark:border-slate-700 text-[12px] text-slate-400 uppercase">
                   <th className="text-left px-4 py-2 font-semibold">Paciente</th>
                   <th className="text-left px-4 py-2 font-semibold">Motivo</th>
                   <th className="text-left px-4 py-2 font-semibold">Fecha</th>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-700 text-[10px] text-slate-400 uppercase">
+              <tr className="border-b border-slate-100 dark:border-slate-700 text-[12px] text-slate-400 uppercase">
                 <th className="text-left px-4 py-2 font-semibold">Nombre</th>
                 <th className="text-left px-4 py-2 font-semibold">Sexo</th>
                 <th className="text-left px-4 py-2 font-semibold">Fecha Nac.</th>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
                   className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/40 cursor-pointer transition-colors">
                   <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{p.nombre}</td>
                   <td className="px-4 py-2.5">
-                    <span className={clsx('px-1.5 py-0.5 rounded-full text-[10px] font-medium',
+                    <span className={clsx('px-1.5 py-0.5 rounded-full text-[12px] font-medium',
                       p.genero === 'F' ? 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400'
                         : p.genero === 'M' ? 'bg-sky-50 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'
                         : 'bg-slate-100 text-slate-500'
@@ -271,7 +271,7 @@ export default function DashboardPage() {
                   </td>
                   <td className="px-4 py-2.5 text-slate-400 whitespace-nowrap">{fmtDate(p.fecha_nacimiento)}</td>
                   <td className="px-4 py-2.5">
-                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    <span className="px-1.5 py-0.5 rounded-full text-[12px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
                       {p.num_consultas}
                     </span>
                   </td>

@@ -79,7 +79,7 @@ function calcAge(fechaNac, refDate) {
 function MiniField({ label, value, onChange, disabled, type = 'text', className = '', icon: Icon }) {
   return (
     <div className={className}>
-      <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">
+      <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">
         {label}
       </label>
       <div className="relative">
@@ -102,7 +102,7 @@ function MiniField({ label, value, onChange, disabled, type = 'text', className 
 function MiniTextarea({ label, value, onChange, disabled, rows = 3, icon: Icon }) {
   return (
     <div>
-      <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5 flex items-center gap-1.5">
+      <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5 flex items-center gap-1.5">
         {Icon && <Icon className="w-3.5 h-3.5 text-primary/60" />}
         {label}
       </label>
@@ -162,7 +162,7 @@ function InterrogatorioSection({ groupKey, title, icon: Icon, fields, interrogat
         <div className="p-1 rounded-md bg-primary/10 text-primary"><Icon className="w-3 h-3" /></div>
         <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 flex-1">{title}</span>
         {activeCount > 0 && (
-          <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+          <span className="px-1.5 py-0.5 text-[12px] font-bold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
             {activeCount}
           </span>
         )}
@@ -535,13 +535,19 @@ export default function ConsultaDetallePage() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [140, 216] })
     const pw = 216
     const margin = 10
+    const pageBottom = 130
+    const lineH = 4.5
     let y = 45 // top margin (4.5cm header space)
 
-    doc.setFontSize(11)
+    const checkPage = (needed = 10) => {
+      if (y + needed > pageBottom) { doc.addPage(); y = 20 }
+    }
+
+    doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
     doc.text(`Paciente: ${pacienteNombre}`, margin, y)
     doc.text(`Fecha: ${formatDateEs(fechaConsulta)}`, pw - margin, y, { align: 'right' })
-    y += 6
+    y += 5
 
     const svItems = [
       signos.talla ? `Talla: ${signos.talla}` : '',
@@ -554,15 +560,14 @@ export default function ConsultaDetallePage() {
     ].filter(Boolean)
     if (svItems.length) {
       doc.text(svItems.join('    '), margin, y)
-      y += 7
+      y += 6
     }
 
     const meds = medicamentos.filter((m) => m.nombre?.trim())
     if (meds.length) {
       meds.forEach((m, i) => {
-        if (y > 120) { doc.addPage(); y = 20 }
-        // Line 1: número + Medicamento  Presentación
-        doc.setFontSize(11)
+        checkPage(12)
+        doc.setFontSize(10)
         doc.setFont('helvetica', 'bold')
         doc.text(`${i + 1}.`, margin, y)
         const nombreText = m.nombre || ''
@@ -570,13 +575,12 @@ export default function ConsultaDetallePage() {
         doc.setFont('helvetica', 'normal')
         const presentacionText = m.presentacion ? `   ${m.presentacion}` : ''
         if (presentacionText) doc.text(presentacionText, margin + 7 + doc.getTextWidth(nombreText), y)
-        y += 5
-        // Line 2: (indentado) Dosis  Frecuencia  Duración
+        y += lineH
+        // indented: Dosis + Frecuencia + Duración
         const line2Parts = [m.dosis, m.frecuencia, m.duracion].filter(Boolean)
         if (line2Parts.length) {
-          doc.setFontSize(11)
           doc.text(line2Parts.join('    '), margin + 7, y)
-          y += 5
+          y += lineH
         }
         y += 1
       })
@@ -584,24 +588,32 @@ export default function ConsultaDetallePage() {
     }
 
     if (form.notas_adicionales) {
-      if (y > 115) { doc.addPage(); y = 20 }
-      doc.setFontSize(11)
+      checkPage(10)
+      doc.setFontSize(10)
       doc.setFont('helvetica', 'normal')
       const notasLines = htmlToLines(form.notas_adicionales, doc, pw - margin * 2)
-      doc.text(notasLines, margin, y)
-      y += notasLines.length * 5 + 3
+      notasLines.forEach((line) => {
+        checkPage(lineH + 1)
+        doc.text(line, margin, y)
+        y += lineH
+      })
+      y += 2
     }
 
     if (form.tratamiento) {
-      if (y > 115) { doc.addPage(); y = 20 }
-      doc.setFontSize(11)
+      checkPage(10)
+      doc.setFontSize(10)
       doc.setFont('helvetica', 'bold')
       doc.text('Tratamiento:', margin, y)
-      y += 5
+      y += lineH + 1
       doc.setFont('helvetica', 'normal')
       const lines = doc.splitTextToSize(form.tratamiento, pw - margin * 2)
-      doc.text(lines, margin, y)
-      y += lines.length * 5 + 3
+      lines.forEach((line) => {
+        checkPage(lineH + 1)
+        doc.text(line, margin, y)
+        y += lineH
+      })
+      y += 2
     }
 
     const pdfBlob = doc.output('blob')
@@ -668,7 +680,7 @@ export default function ConsultaDetallePage() {
         })()}
 
         <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{pacienteNombre}</span>
-        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex-shrink-0">#{id}</span>
+        <span className="text-[12px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex-shrink-0">#{id}</span>
 
         {consulta?.paciente_fecha_nacimiento && (
           <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-medium flex-shrink-0 hidden sm:inline">
@@ -816,7 +828,7 @@ export default function ConsultaDetallePage() {
                 {editing && (
                   <button
                     onClick={addMed}
-                    className="flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+                    className="flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
                   >
                     <Plus className="w-3 h-3" /> Agregar
                   </button>
@@ -904,7 +916,7 @@ export default function ConsultaDetallePage() {
             {(() => {
               const total = INTERROGATORIO_GROUPS.reduce((sum, g) => sum + g.fields.filter(f => interrogatorio[`${g.key}_${f}`]).length, 0)
               return total > 0 ? (
-                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <span className="px-2 py-0.5 text-[12px] font-bold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
                   {total} hallazgo{total !== 1 ? 's' : ''}
                 </span>
               ) : null
@@ -962,14 +974,14 @@ export default function ConsultaDetallePage() {
                       ? 'border-primary/50 bg-primary/5 dark:bg-primary/10'
                       : 'border-slate-200 dark:border-slate-600'
                   )}>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">
+                    <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">
                       Foto {n}
                     </label>
 
                     {isUploading ? (
                       <div className="w-full h-32 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-700/50 rounded-lg gap-2">
                         <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
-                        <span className="text-[10px] text-primary font-medium animate-pulse">Subiendo imagen...</span>
+                        <span className="text-[12px] text-primary font-medium animate-pulse">Subiendo imagen...</span>
                       </div>
                     ) : imageUrl ? (
                       <button type="button" onClick={() => setLightboxUrl(imageUrl)} className="w-full focus:outline-none">
@@ -984,14 +996,14 @@ export default function ConsultaDetallePage() {
                               onChange={(e) => { if (e.target.files?.[0]) handlePhotoUpload(n, e.target.files[0]) }} />
                             <button onClick={() => fileInputRefs.current[n]?.click()}
                               disabled={uploadingSlot !== null}
-                              className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium">
+                              className="flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium">
                               <Upload className="w-3 h-3" /> Subir imagen
                             </button>
                           </>
                         ) : (
                           <div className="flex flex-col items-center gap-1">
                             <Image className="w-6 h-6 text-slate-300 dark:text-slate-600" />
-                            <span className="text-[10px] text-slate-400">Sin imagen</span>
+                            <span className="text-[12px] text-slate-400">Sin imagen</span>
                           </div>
                         )}
                       </div>
@@ -1004,7 +1016,7 @@ export default function ConsultaDetallePage() {
                           onChange={(e) => { if (e.target.files?.[0]) handlePhotoUpload(n, e.target.files[0]) }} />
                         <button onClick={() => fileInputRefs.current[`re_${n}`]?.click()}
                           disabled={uploadingSlot !== null}
-                          className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                          className="flex items-center gap-1 text-[12px] px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                           <Upload className="w-3 h-3" /> Reemplazar
                         </button>
                       </div>

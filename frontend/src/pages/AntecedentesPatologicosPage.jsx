@@ -89,7 +89,7 @@ export default function AntecedentesPatologicosPage() {
         <div className="flex flex-col sm:flex-row gap-3 items-end">
           <PatientSearchSelect value={selectedPaciente} onChange={setSelectedPaciente} className="flex-1" />
           {selectedPaciente && (
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-medium">
               {existingId ? 'Registro existente' : 'Nuevo registro'}
             </span>
           )}
@@ -103,7 +103,7 @@ export default function AntecedentesPatologicosPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
               {FIELDS.map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
+                  <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
                   <textarea value={form[key]} onChange={(e) => updateField(key, e.target.value)}
                     rows={3} disabled={dis}
                     placeholder={`${label}...`}

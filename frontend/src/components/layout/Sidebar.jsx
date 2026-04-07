@@ -1,14 +1,14 @@
 import { NavLink } from 'react-router-dom'
 import {
   Users, Stethoscope, FileText, ShieldCheck, LayoutDashboard,
-  ClipboardList, HeartPulse, Heart, Baby, ChevronLeft, ChevronRight
+  ClipboardList, HeartPulse, Heart, Baby, ChevronLeft, ChevronRight, HardDrive
 } from 'lucide-react'
 import { useState } from 'react'
 import useAuthStore from '../../store/auth'
 import clsx from 'clsx'
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, module: 'consultas' },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, module: null },
   { to: '/pacientes', label: 'Pacientes', icon: Baby, module: 'pacientes' },
   { to: '/consultas', label: 'Consultas', icon: Stethoscope, module: 'consultas' },
   { to: '/antecedentes-patologicos', label: 'A. Patológicos', icon: ClipboardList, module: 'antecedentes_pp' },
@@ -16,6 +16,7 @@ const navItems = [
   { to: '/antecedentes-heredo-familiares', label: 'A. Heredo Familiares', icon: FileText, module: 'antecedentes_hf' },
   { to: '/antecedentes-gineco-obstetricos', label: 'A. Gineco-Obstétricos', icon: Heart, module: 'antecedentes_go' },
   { to: '/usuarios', label: 'Usuarios', icon: Users, module: 'usuarios' },
+  { to: '/respaldos', label: 'Respaldos', icon: HardDrive, module: null },
 ]
 
 export default function Sidebar() {
@@ -23,6 +24,7 @@ export default function Sidebar() {
   const permissions = useAuthStore((s) => s.permissions)
 
   const visibleItems = navItems.filter((item) => {
+    if (!item.module) return true
     const perm = permissions?.[item.module]
     return perm?.lectura
   })
@@ -30,7 +32,7 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        'bg-slate-900 text-white flex flex-col transition-all duration-300 h-full',
+        'bg-slate-900 text-white flex flex-col transition-all duration-300 h-screen sticky top-0 shrink-0',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
@@ -40,7 +42,7 @@ export default function Sidebar() {
             <ShieldCheck className="w-7 h-7 text-primary-light" />
             <div>
               <h1 className="text-sm font-semibold leading-tight">Expediente Clínico</h1>
-              <p className="text-[10px] text-slate-400">Ginecología</p>
+              <p className="text-[12px] text-slate-400">Ginecología</p>
             </div>
           </div>
         )}
@@ -75,7 +77,7 @@ export default function Sidebar() {
 
       {!collapsed && (
         <div className="px-4 py-3 border-t border-white/10">
-          <p className="text-[10px] text-slate-500">v1.0.0</p>
+          <p className="text-[12px] text-slate-500">v1.1.0</p>
         </div>
       )}
     </aside>
