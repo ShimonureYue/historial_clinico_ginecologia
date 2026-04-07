@@ -1,14 +1,13 @@
 """
 build_package.py
 ================
-Empaqueta el proyecto en DOS carpetas:
-  build/ExpedienteClinico_Win10/  →  Python 3.10+  (Windows 10/11)
-  build/ExpedienteClinico_Win8/   →  Python 3.8/3.9 (Windows 8/8.1)
+Empaqueta el proyecto en UNA carpeta:
+  build/ExpedienteClinico/  →  Python 3.10+ (Windows 10/11)
 
 FLUJO:
     1. En macOS: migrar MySQL -> SQLite (migrate_structure.py + migrate_data.py)
     2. En macOS: ejecutar este script para empaquetar todo
-    3. Copiar la carpeta correspondiente al equipo destino
+    3. Copiar la carpeta al equipo destino
     4. En Windows: setup.bat -> run.bat
 
 Requisitos (macOS):
@@ -28,13 +27,9 @@ import sys
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_FILE = os.path.join(PROJECT_ROOT, "database", "expediente_clinico.db")
+BUILD_DIR = os.path.join(PROJECT_ROOT, "build", "ExpedienteClinico")
 
-TARGETS = {
-    "Win10": {
-        "dir": os.path.join(PROJECT_ROOT, "build", "ExpedienteClinico_Win10"),
-        "python_label": "Python 3.10, 3.11, 3.12, 3.13 o 3.14",
-        "python_url": "https://www.python.org/downloads/",
-        "requirements": """\
+REQUIREMENTS = """\
 fastapi==0.135.3
 uvicorn==0.43.0
 python-jose[cryptography]==3.5.0
@@ -44,31 +39,13 @@ boto3>=1.35.0
 reportlab==4.4.9
 beautifulsoup4==4.12.3
 requests==2.31.0
-""",
-    },
-    "Win8": {
-        "dir": os.path.join(PROJECT_ROOT, "build", "ExpedienteClinico_Win8"),
-        "python_label": "Python 3.8 o 3.9",
-        "python_url": "https://www.python.org/downloads/release/python-3913/",
-        "requirements": """\
-fastapi==0.104.1
-uvicorn==0.24.0
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
-boto3==1.34.0
-reportlab==4.0.8
-beautifulsoup4==4.12.3
-requests==2.31.0
-""",
-    },
-}
+"""
 
 
-def clean_build(build_dir):
-    if os.path.exists(build_dir):
-        shutil.rmtree(build_dir)
-    os.makedirs(build_dir, exist_ok=True)
+def clean_build():
+    if os.path.exists(BUILD_DIR):
+        shutil.rmtree(BUILD_DIR)
+    os.makedirs(BUILD_DIR, exist_ok=True)
 
 
 def build_frontend():
@@ -87,26 +64,26 @@ def build_frontend():
     return os.path.join(frontend_dir, "dist")
 
 
-def copy_frontend(dist_dir, build_dir):
-    static_dir = os.path.join(build_dir, "static")
+def copy_frontend(dist_dir):
+    static_dir = os.path.join(BUILD_DIR, "static")
     shutil.copytree(dist_dir, static_dir)
 
 
-def copy_backend(build_dir, requirements_content):
+def copy_backend():
     src = os.path.join(PROJECT_ROOT, "backend", "src")
-    dst = os.path.join(build_dir, "backend", "src")
+    dst = os.path.join(BUILD_DIR, "backend", "src")
     shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
 
-    init_path = os.path.join(build_dir, "backend", "__init__.py")
+    init_path = os.path.join(BUILD_DIR, "backend", "__init__.py")
     if not os.path.exists(init_path):
         open(init_path, "w").close()
 
-    with open(os.path.join(build_dir, "requirements.txt"), "w") as f:
-        f.write(requirements_content)
+    with open(os.path.join(BUILD_DIR, "requirements.txt"), "w") as f:
+        f.write(REQUIREMENTS)
 
 
-def copy_database(build_dir):
-    db_dir = os.path.join(build_dir, "database")
+def copy_database():
+    db_dir = os.path.join(BUILD_DIR, "database")
     os.makedirs(db_dir, exist_ok=True)
     os.makedirs(os.path.join(db_dir, "backups"), exist_ok=True)
 
@@ -115,15 +92,15 @@ def copy_database(build_dir):
         size_kb = os.path.getsize(DB_FILE) / 1024
         print(f"  Base de datos copiada ({size_kb:.0f} KB)")
     else:
-        print("  ADVERTENCIA: No se encontró la base de datos.")
-        print("  Ejecuta primero la migración:")
+        print("  ADVERTENCIA: No se encontro la base de datos.")
+        print("  Ejecuta primero la migracion:")
         print("    python scripts/migrate_structure.py")
-        print("    python scripts/migrate_data.py --from-sql documentation/expediente_clinico_full.sql")
+        print("    python scripts/migrate_data.py --seed")
         sys.exit(1)
 
 
-def copy_migration_scripts(build_dir):
-    scripts_dst = os.path.join(build_dir, "scripts")
+def copy_migration_scripts():
+    scripts_dst = os.path.join(BUILD_DIR, "scripts")
     os.makedirs(scripts_dst, exist_ok=True)
     for fname in ["migrate_structure.py", "migrate_data.py"]:
         src_file = os.path.join(PROJECT_ROOT, "scripts", fname)
@@ -131,7 +108,50 @@ def copy_migration_scripts(build_dir):
             shutil.copy2(src_file, os.path.join(scripts_dst, fname))
 
 
-def create_windows_scripts(build_dir, python_label, python_url):
+def copy_documentation():
+    src_doc = os.path.join(PROJECT_ROOT, "documentation")
+    dst_doc = os.path.join(BUILD_DIR, "documentation")
+    os.makedirs(dst_doc, exist_ok=True)
+    for fname in ["encabezado.png"]:
+        src_file = os.path.join(src_doc, fname)
+        if os.path.exists(src_file):
+            shutil.copy2(src_file, os.path.join(dst_doc, fname))
+
+
+def copy_env():
+    """Copy only .env.example (never the real .env with credentials)."""
+    src = os.path.join(PROJECT_ROOT, ".env.example")
+    if os.path.exists(src):
+        shutil.copy2(src, os.path.join(BUILD_DIR, ".env.example"))
+
+
+def generate_icon():
+    try:
+        from PIL import Image, ImageDraw
+        sizes = [16, 32, 48, 64, 128, 256]
+        images = []
+        for size in sizes:
+            img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            d.ellipse([0, 0, size - 1, size - 1], fill=(10, 143, 131, 255))
+            cx = size / 2
+            m = size / 32
+            bx1, by1, bx2, by2 = cx - 4.5*m, 10.5*m, cx + 4.5*m, 22.5*m
+            d.rounded_rectangle([bx1, by1, bx2, by2], radius=2*m, fill=(255, 255, 255, 255))
+            d.rounded_rectangle([cx - 1.5*m, 22.5*m, cx + 1.5*m, 25*m], radius=0.8*m, fill=(255, 255, 255, 255))
+            d.line([bx1, 16*m, 7*m, 12.5*m], fill=(255, 255, 255, 220), width=max(1, int(1.6*m)))
+            d.ellipse([5*m, 10*m, 9*m, 14*m], outline=(255, 255, 255, 220), width=max(1, int(1.3*m)))
+            d.line([bx2, 16*m, 25*m, 12.5*m], fill=(255, 255, 255, 220), width=max(1, int(1.6*m)))
+            d.ellipse([23*m, 10*m, 27*m, 14*m], outline=(255, 255, 255, 220), width=max(1, int(1.3*m)))
+            images.append(img)
+        ico_path = os.path.join(BUILD_DIR, "icon.ico")
+        images[0].save(ico_path, format="ICO", sizes=[(s, s) for s in sizes], append_images=images[1:])
+        print("  icon.ico generado")
+    except Exception as e:
+        print(f"  (icon.ico omitido: {e})")
+
+
+def create_windows_scripts():
     setup_bat = r"""@echo off
 chcp 65001 >nul
 echo ============================================
@@ -139,7 +159,6 @@ echo  Expediente Clinico - Instalacion
 echo ============================================
 echo.
 
-:: Check Python
 python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python no esta instalado.
@@ -188,7 +207,6 @@ echo  Expediente Clinico - Ginecologia
 echo ============================================
 echo.
 
-:: Check venv exists
 if not exist ".venv\Scripts\activate.bat" (
     echo ERROR: No se encontro el entorno virtual.
     echo Ejecuta primero: setup.bat
@@ -198,18 +216,16 @@ if not exist ".venv\Scripts\activate.bat" (
 
 call .venv\Scripts\activate.bat
 
-:: Load S3 / AWS variables from .env if it exists
+:: Load variables from .env if it exists
 if exist ".env" (
     for /f "usebackq tokens=1,* delims==" %%A in (".env") do (
         set "%%A=%%B"
     )
 )
 
-:: Check database
 if not exist "database\expediente_clinico.db" (
     echo ERROR: No se encontro la base de datos.
     echo El archivo database\expediente_clinico.db no existe.
-    echo Asegurate de que la carpeta se copio completa.
     pause
     exit /b 1
 )
@@ -229,7 +245,7 @@ python -m uvicorn backend.src.main:app --host 127.0.0.1 --port 8000
 pause
 """
 
-    readme_txt = f"""============================================================
+    readme_txt = """============================================================
   EXPEDIENTE CLINICO - GINECOLOGIA
   Guia de Instalacion y Uso
 ============================================================
@@ -237,16 +253,15 @@ pause
 Este programa funciona en tu navegador (Chrome, Edge, Firefox).
 Solo necesitas instalar Python una vez y luego ya puedes usarlo.
 
-VERSION REQUERIDA: {python_label}
+VERSION REQUERIDA: Python 3.10 o superior
 
 
 ============================================================
   PASO 1: INSTALAR PYTHON (solo la primera vez)
 ============================================================
 
-  1. Abre tu navegador y ve a esta pagina:
-
-     {python_url}
+  1. Abre tu navegador y ve a:
+     https://www.python.org/downloads/
 
   2. Descarga el instalador para Windows y ejecutalo.
 
@@ -282,7 +297,20 @@ VERSION REQUERIDA: {python_label}
 
 
 ============================================================
-  PASO 3: USAR EL PROGRAMA (cada vez que quieras usarlo)
+  PASO 3: CONFIGURAR CREDENCIALES (solo la primera vez)
+============================================================
+
+  Lee el archivo CONFIGURACION_ENV.txt para configurar las
+  credenciales de Amazon S3 (colposcopias y respaldos).
+
+  Sin esta configuracion:
+  - El sistema funciona normalmente
+  - Pero NO podras subir imagenes de colposcopia
+  - Y NO podras hacer respaldos a la nube
+
+
+============================================================
+  PASO 4: USAR EL PROGRAMA (cada vez que quieras usarlo)
 ============================================================
 
   1. Abre la carpeta "ExpedienteClinico".
@@ -317,39 +345,6 @@ VERSION REQUERIDA: {python_label}
 
 
 ============================================================
-  COMO RESPALDAR LA BASE DE DATOS
-============================================================
-
-  Los datos se guardan en: database\\expediente_clinico.db
-
-  Para respaldar:
-  1. Asegurate de que el programa NO este corriendo.
-  2. Copia el archivo "expediente_clinico.db" a una USB
-     o carpeta segura.
-
-  Para restaurar:
-  1. Asegurate de que el programa NO este corriendo.
-  2. Reemplaza el archivo con tu copia de respaldo.
-
-
-============================================================
-  CONFIGURAR IMAGENES DE COLPOSCOPIA (S3)
-============================================================
-
-  Las imagenes de colposcopia se almacenan en Amazon S3.
-  Para configurar S3, crea un archivo .env en esta carpeta
-  con el siguiente contenido:
-
-  AWS_ACCESS_KEY_ID=tu_access_key
-  AWS_SECRET_ACCESS_KEY=tu_secret_key
-  AWS_REGION=us-east-1
-  S3_BUCKET_NAME=tu_bucket
-
-  Si no configuras S3, el sistema funcionara pero no podras
-  subir ni ver imagenes de colposcopia.
-
-
-============================================================
   PROBLEMAS COMUNES
 ============================================================
 
@@ -372,179 +367,134 @@ VERSION REQUERIDA: {python_label}
   -> Haz clic en "Mas informacion" > "Ejecutar de todas formas".
 """
 
-    update_bat = r"""@echo off
-chcp 65001 >nul
-echo ============================================
-echo  Expediente Clinico - Actualizacion
-echo ============================================
-echo.
-echo Este script actualiza una instalacion existente
-echo SIN tocar la base de datos ni el entorno virtual.
-echo.
+    config_env_txt = """============================================================
+  CONFIGURACION DE CREDENCIALES (.env)
+============================================================
 
-:: Ask for target installation path
-set /p TARGET="Escribe la ruta de la instalacion existente (ej. C:\ExpedienteClinico): "
+Para que funcionen las imagenes de colposcopia y los
+respaldos a la nube, necesitas crear un archivo llamado
+".env" en esta carpeta.
 
-if not exist "%TARGET%\" (
-    echo ERROR: No se encontro la carpeta: %TARGET%
-    pause
-    exit /b 1
-)
+IMPORTANTE: El archivo se llama punto-env  -->  .env
+            (empieza con un punto)
 
-if not exist "%TARGET%\database\expediente_clinico.db" (
-    echo ERROR: No parece ser una instalacion valida (no hay base de datos).
-    echo Usa setup.bat para instalaciones nuevas.
-    pause
-    exit /b 1
-)
 
-echo.
-echo Actualizando archivos en: %TARGET%
-echo (La base de datos y el entorno virtual no se modificaran)
-echo.
+============================================================
+  COMO CREAR EL ARCHIVO .env
+============================================================
 
-:: Copy frontend static files
-xcopy /E /I /Y "static" "%TARGET%\static" >nul
-echo  [OK] Frontend actualizado
+  1. Abre esta carpeta en el Explorador de archivos.
 
-:: Copy backend source
-xcopy /E /I /Y "backend" "%TARGET%\backend" >nul
-echo  [OK] Backend actualizado
+  2. Busca el archivo ".env.example" (es una plantilla).
 
-:: Copy scripts
-xcopy /E /I /Y "scripts" "%TARGET%\scripts" >nul
-echo  [OK] Scripts actualizados
+  3. Haz clic derecho sobre ".env.example" y selecciona
+     "Copiar". Luego haz clic derecho en un espacio vacio
+     y selecciona "Pegar".
 
-:: Copy documentation assets
-xcopy /E /I /Y "documentation" "%TARGET%\documentation" >nul
-echo  [OK] Documentacion actualizada
+  4. Renombra la copia de ".env.example - copia" a ".env"
+     (Windows puede advertir sobre cambiar la extension,
+     haz clic en "Si").
 
-:: Copy requirements and bat files
-copy /Y "requirements.txt" "%TARGET%\requirements.txt" >nul
-copy /Y "run.bat" "%TARGET%\run.bat" >nul
-copy /Y "setup.bat" "%TARGET%\setup.bat" >nul
-copy /Y "README.txt" "%TARGET%\README.txt" >nul
-if exist "icon.ico" copy /Y "icon.ico" "%TARGET%\icon.ico" >nul
-echo  [OK] Archivos de configuracion actualizados
+  5. Haz clic derecho en ".env" > "Abrir con" > "Bloc de notas".
 
-:: Update dependencies if venv exists
-if exist "%TARGET%\.venv\Scripts\activate.bat" (
-    echo.
-    echo Actualizando dependencias Python...
-    call "%TARGET%\.venv\Scripts\activate.bat"
-    pip install -r "%TARGET%\requirements.txt" --quiet
-    echo  [OK] Dependencias actualizadas
-)
+  6. Llena los valores con las credenciales que te
+     proporcionaron. Ejemplo:
 
-echo.
-echo ============================================
-echo  Actualizacion completada!
-echo  Ejecuta run.bat para iniciar el sistema.
-echo ============================================
-echo.
-pause
+
+============================================================
+  CONTENIDO DEL ARCHIVO .env
+============================================================
+
+Copia esto al Bloc de notas y reemplaza los valores:
+
+  PORT=8000
+  SECRET_KEY=expediente-clinico-secret-key-change-in-production
+  VITE_API_PORT=8000
+
+  # Colposcopias (imagenes)
+  AWS_ACCESS_KEY_ID=AKIA...tu_access_key_colposcopia
+  AWS_SECRET_ACCESS_KEY=tu_secret_key_colposcopia
+  AWS_REGION=us-west-2
+  S3_BUCKET_NAME=expediente-clinico
+
+  # Respaldos (copias de seguridad)
+  S3_BACKUP_ACCESS_KEY_ID=AKIA...tu_access_key_respaldos
+  S3_BACKUP_SECRET_ACCESS_KEY=tu_secret_key_respaldos
+  S3_BACKUP_BUCKET=historial-clinico-backups
+  S3_BACKUP_PREFIX=miriam-01
+  S3_BACKUP_REGION=us-east-1
+
+
+============================================================
+  NOTAS IMPORTANTES
+============================================================
+
+  - Las credenciales de COLPOSCOPIA y RESPALDOS son
+    DIFERENTES. Son dos usuarios de Amazon distintos.
+
+  - Si no tienes las credenciales, pide al administrador
+    del sistema que te las proporcione.
+
+  - NUNCA compartas el archivo .env con nadie.
+
+  - Si el archivo .env no existe o esta vacio:
+    * El sistema funciona normalmente
+    * Las consultas, pacientes, etc. funcionan
+    * Solo no podras subir imagenes ni hacer respaldos S3
+
+  - Despues de crear o modificar .env, debes REINICIAR
+    el programa (cerrar y abrir run.bat de nuevo).
 """
 
     for name, content in [
         ("setup.bat", setup_bat),
         ("run.bat", run_bat),
-        ("update.bat", update_bat),
         ("README.txt", readme_txt),
+        ("CONFIGURACION_ENV.txt", config_env_txt),
     ]:
-        path = os.path.join(build_dir, name)
+        path = os.path.join(BUILD_DIR, name)
         with open(path, "w", encoding="utf-8", newline="\r\n") as f:
             f.write(content)
 
 
-def copy_env(build_dir):
-    """Copy .env and .env.example from project root into the package."""
-    for name in [".env", ".env.example"]:
-        src = os.path.join(PROJECT_ROOT, name)
-        if os.path.exists(src):
-            shutil.copy2(src, os.path.join(build_dir, name))
+def main():
+    print("=" * 50)
+    print(" Empaquetando Expediente Clinico")
+    print("=" * 50)
 
+    clean_build()
+    dist_dir = build_frontend()
 
-def generate_icon(build_dir):
-    """Generate icon.ico for Windows shortcuts using Pillow."""
-    try:
-        from PIL import Image, ImageDraw
-        sizes = [16, 32, 48, 64, 128, 256]
-        images = []
-        for size in sizes:
-            img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-            d = ImageDraw.Draw(img)
-            # Teal circle background
-            d.ellipse([0, 0, size - 1, size - 1], fill=(10, 143, 131, 255))
-            # Simplified uterus: white body trapezoid
-            cx = size / 2
-            m = size / 32  # scale factor
-            # Body
-            bx1, by1, bx2, by2 = cx - 4.5*m, 10.5*m, cx + 4.5*m, 22.5*m
-            d.rounded_rectangle([bx1, by1, bx2, by2], radius=2*m, fill=(255, 255, 255, 255))
-            # Cervix
-            d.rounded_rectangle([cx - 1.5*m, 22.5*m, cx + 1.5*m, 25*m], radius=0.8*m, fill=(255, 255, 255, 255))
-            # Left tube
-            d.line([bx1, 16*m, 7*m, 12.5*m], fill=(255, 255, 255, 220), width=max(1, int(1.6*m)))
-            d.ellipse([5*m, 10*m, 9*m, 14*m], outline=(255, 255, 255, 220), width=max(1, int(1.3*m)))
-            # Right tube
-            d.line([bx2, 16*m, 25*m, 12.5*m], fill=(255, 255, 255, 220), width=max(1, int(1.6*m)))
-            d.ellipse([23*m, 10*m, 27*m, 14*m], outline=(255, 255, 255, 220), width=max(1, int(1.3*m)))
-            images.append(img)
-        ico_path = os.path.join(build_dir, "icon.ico")
-        images[0].save(ico_path, format="ICO", sizes=[(s, s) for s in sizes], append_images=images[1:])
-        print("  icon.ico generado")
-    except Exception as e:
-        print(f"  (icon.ico omitido: {e})")
+    print("[2/7] Copiando frontend...")
+    copy_frontend(dist_dir)
 
+    print("[3/7] Copiando backend...")
+    copy_backend()
 
-def copy_documentation(build_dir):
-    """Copy documentation assets needed at runtime (e.g. PDF header image)."""
-    src_doc = os.path.join(PROJECT_ROOT, "documentation")
-    dst_doc = os.path.join(build_dir, "documentation")
-    os.makedirs(dst_doc, exist_ok=True)
-    for fname in ["encabezado.png"]:
-        src_file = os.path.join(src_doc, fname)
-        if os.path.exists(src_file):
-            shutil.copy2(src_file, os.path.join(dst_doc, fname))
+    print("[4/7] Copiando base de datos...")
+    copy_database()
 
+    print("[5/7] Copiando scripts y documentacion...")
+    copy_migration_scripts()
+    copy_documentation()
+    copy_env()
 
-def build_target(name, config, dist_dir):
-    build_dir = config["dir"]
-    print(f"\n  → Empaquetando {name} en {os.path.basename(build_dir)}/")
-    clean_build(build_dir)
-    copy_frontend(dist_dir, build_dir)
-    copy_backend(build_dir, config["requirements"])
-    copy_database(build_dir)
-    copy_migration_scripts(build_dir)
-    copy_documentation(build_dir)
-    copy_env(build_dir)
-    generate_icon(build_dir)
-    create_windows_scripts(build_dir, config["python_label"], config["python_url"])
+    print("[6/7] Creando scripts de Windows...")
+    create_windows_scripts()
+
+    print("[7/7] Generando icono...")
+    generate_icon()
 
     total = sum(
         os.path.getsize(os.path.join(dp, f))
-        for dp, _, files in os.walk(build_dir)
+        for dp, _, files in os.walk(BUILD_DIR)
         for f in files
     )
-    print(f"  ✓ {name}: {total / (1024*1024):.1f} MB → {os.path.basename(build_dir)}/")
-
-
-def main():
-    print("=" * 50)
-    print(" Empaquetando Expediente Clínico")
-    print(" Windows 10  +  Windows 8")
-    print("=" * 50)
-
-    dist_dir = build_frontend()
-
-    for name, config in TARGETS.items():
-        build_target(name, config, dist_dir)
 
     print()
     print("=" * 50)
-    print(" Empaquetado completado!")
-    print("  build/ExpedienteClinico_Win10/  →  Windows 10/11")
-    print("  build/ExpedienteClinico_Win8/   →  Windows 8/8.1")
+    print(f" Empaquetado completado! ({total / (1024*1024):.1f} MB)")
+    print(f" build/ExpedienteClinico/")
     print("=" * 50)
 
 
