@@ -59,7 +59,7 @@ const inputClass = "w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:b
 function MiniField({ label, value, onChange, type = 'text', disabled, rows, placeholder }) {
   return (
     <div>
-      <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
+      <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
       {rows ? (
         <textarea value={value ?? ''} rows={rows}
           onChange={(e) => onChange(e.target.value)}
@@ -133,7 +133,7 @@ export default function AntecedentesGinecoObstetricosPage() {
         <div className="flex flex-col sm:flex-row gap-3 items-end">
           <PatientSearchSelect value={selectedPaciente} onChange={setSelectedPaciente} className="flex-1" />
           {selectedPaciente && (
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-medium">
               {existingId ? 'Registro existente' : 'Nuevo registro'}
             </span>
           )}

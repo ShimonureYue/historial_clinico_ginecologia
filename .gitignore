@@ -73,3 +73,6 @@ documentation/*.sql
 *.tmp
 *.swp
 *~
+
+
+pr/

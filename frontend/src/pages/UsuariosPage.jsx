@@ -202,12 +202,12 @@ export default function UsuariosPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-700">
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Nombre</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Correo</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Rol</th>
-                <th className="text-center py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Estado</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Nombre</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Correo</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Rol</th>
+                <th className="text-center py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Estado</th>
                 {isAdmin && (
-                  <th className="text-right py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Acciones</th>
+                  <th className="text-right py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Acciones</th>
                 )}
               </tr>
             </thead>
@@ -229,13 +229,13 @@ export default function UsuariosPage() {
                     <td className="py-2 px-2 font-medium text-slate-700 dark:text-slate-200">{u.nombre}</td>
                     <td className="py-2 px-2 text-slate-600 dark:text-slate-300">{u.correo}</td>
                     <td className="py-2 px-2">
-                      <span className="inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full bg-primary/10 text-primary capitalize">
+                      <span className="inline-flex px-2 py-0.5 text-[12px] font-medium rounded-full bg-primary/10 text-primary capitalize">
                         {u.rol}
                       </span>
                     </td>
                     <td className="py-2 px-2 text-center">
                       <span
-                        className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full ${
+                        className={`inline-flex px-2 py-0.5 text-[12px] font-medium rounded-full ${
                           u.activo !== false
                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                             : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
@@ -318,7 +318,7 @@ export default function UsuariosPage() {
               {/* Basic fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                  <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                     Nombre
                   </label>
                   <input
@@ -330,7 +330,7 @@ export default function UsuariosPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                  <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                     Correo
                   </label>
                   <input
@@ -342,7 +342,7 @@ export default function UsuariosPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                  <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                     Rol
                   </label>
                   <select
@@ -356,7 +356,7 @@ export default function UsuariosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                  <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                     Contraseña {editingId && <span className="normal-case">(dejar vacío para no cambiar)</span>}
                   </label>
                   <input
@@ -387,7 +387,7 @@ export default function UsuariosPage() {
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <Shield className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">
+                  <span className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">
                     Matriz de Permisos
                   </span>
                 </div>
@@ -395,13 +395,13 @@ export default function UsuariosPage() {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-700/50">
-                        <th className="text-left py-2 px-3 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">
+                        <th className="text-left py-2 px-3 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">
                           Módulo
                         </th>
                         {PERMISSION_TYPES.map((pt) => (
                           <th
                             key={pt.key}
-                            className="text-center py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500"
+                            className="text-center py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500"
                           >
                             {pt.label}
                           </th>

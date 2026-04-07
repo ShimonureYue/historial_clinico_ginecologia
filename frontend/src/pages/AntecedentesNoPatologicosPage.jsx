@@ -47,7 +47,7 @@ const ALL_KEYS = Object.keys(EMPTY_FORM)
 function MiniField({ label, value, onChange, type = 'text', disabled, rows, placeholder }) {
   return (
     <div>
-      <label className="block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
+      <label className="block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-0.5">{label}</label>
       {rows ? (
         <textarea value={value ?? ''} rows={rows}
           onChange={(e) => onChange(e.target.value)}
@@ -121,7 +121,7 @@ export default function AntecedentesNoPatologicosPage() {
         <div className="flex flex-col sm:flex-row gap-3 items-end">
           <PatientSearchSelect value={selectedPaciente} onChange={setSelectedPaciente} className="flex-1" />
           {selectedPaciente && (
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-medium">
               {existingId ? 'Registro existente' : 'Nuevo registro'}
             </span>
           )}
@@ -193,7 +193,7 @@ export default function AntecedentesNoPatologicosPage() {
             </div>
 
             {/* Alcohol */}
-            <p className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-2 mb-1">Alcohol</p>
+            <p className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-2 mb-1">Alcohol</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
               <MiniField label="Consumo" value={form.toxicomanias_alcohol} onChange={(v) => updateField('toxicomanias_alcohol', v)} disabled={dis} />
               <MiniField label="Inicio" value={form.toxicomanias_alcohol_inicio} onChange={(v) => updateField('toxicomanias_alcohol_inicio', v)} disabled={dis} />
@@ -202,7 +202,7 @@ export default function AntecedentesNoPatologicosPage() {
             </div>
 
             {/* Tabaco */}
-            <p className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-3 mb-1">Tabaco</p>
+            <p className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-3 mb-1">Tabaco</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
               <MiniField label="Consumo" value={form.toxicomanias_tabaco} onChange={(v) => updateField('toxicomanias_tabaco', v)} disabled={dis} />
               <MiniField label="Inicio" value={form.toxicomanias_tabaco_inicio} onChange={(v) => updateField('toxicomanias_tabaco_inicio', v)} disabled={dis} />
@@ -211,7 +211,7 @@ export default function AntecedentesNoPatologicosPage() {
             </div>
 
             {/* Drogas */}
-            <p className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-3 mb-1">Drogas</p>
+            <p className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mt-3 mb-1">Drogas</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
               <MiniField label="Consumo" value={form.toxicomanias_drogas} onChange={(v) => updateField('toxicomanias_drogas', v)} disabled={dis} />
               <MiniField label="Inicio" value={form.toxicomanias_drogas_inicio} onChange={(v) => updateField('toxicomanias_drogas_inicio', v)} disabled={dis} />

@@ -116,7 +116,7 @@ export default function ConsultasPage() {
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
         {/* Search */}
         <div className="mb-3">
-          <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+          <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
             Buscar
           </label>
           <div className="relative max-w-sm">
@@ -136,12 +136,12 @@ export default function ConsultasPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-700">
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">ID</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Fecha</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Paciente</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Motivo</th>
-                <th className="text-left py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Diagnóstico</th>
-                <th className="text-right py-2 px-2 text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500">Acciones</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">ID</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Fecha</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Paciente</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Motivo</th>
+                <th className="text-left py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Diagnóstico</th>
+                <th className="text-right py-2 px-2 text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -168,7 +168,7 @@ export default function ConsultasPage() {
                     <td className="py-2 px-2 text-right">
                       <button
                         onClick={(e) => { e.stopPropagation(); navigate(`/consultas/${c.id}`) }}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[12px] font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
                       >
                         <Eye className="w-3 h-3" />
                         Ver
@@ -184,7 +184,7 @@ export default function ConsultasPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+            <span className="text-[12px] text-slate-400 dark:text-slate-500">
               Página {page} de {totalPages} · {total} registros
             </span>
             <div className="flex items-center gap-1">
@@ -223,14 +223,14 @@ export default function ConsultasPage() {
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                   Paciente
                 </label>
                 <PatientSearchSelect value={pacienteId} onChange={setPacienteId} />
               </div>
 
               <div>
-                <label className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
+                <label className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1 block">
                   Motivo de consulta
                 </label>
                 <textarea

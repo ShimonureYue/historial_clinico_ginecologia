@@ -26,7 +26,7 @@ function calcAge(fechaNac) {
 }
 
 const inputCls = 'w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-const labelCls = 'block text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1'
+const labelCls = 'block text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 mb-1'
 const readCls = 'text-xs text-slate-700 dark:text-slate-200 py-2'
 
 const TABS = [
@@ -63,7 +63,7 @@ function ConsultaCard({ c, i, onClick, active, asLink = true }) {
             {c.created_at ? c.created_at.split('T')[0] : '-'}
           </span>
           {c.diagnostico && (
-            <span className={clsx('text-[10px] px-2.5 py-0.5 rounded-full font-semibold uppercase tracking-wide', diagBadge(i))}>
+            <span className={clsx('text-[12px] px-2.5 py-0.5 rounded-full font-semibold uppercase tracking-wide', diagBadge(i))}>
               {c.diagnostico}
             </span>
           )}
@@ -400,7 +400,7 @@ export default function PacienteDetallePage() {
                 </div>
 
                 <div className="my-3 border-t border-slate-200 dark:border-slate-600 flex items-center gap-2">
-                  <span className="text-[10px] font-semibold uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700/30 pr-2 -mt-px">Dirección y Contacto</span>
+                  <span className="text-[12px] font-semibold uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700/30 pr-2 -mt-px">Dirección y Contacto</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -423,7 +423,7 @@ export default function PacienteDetallePage() {
                   <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <Stethoscope className="w-4 h-4 text-primary" /> Consultas
                     {consultas.length > 0 && (
-                      <span className="text-[10px] font-normal text-slate-400 ml-1">{consultas.length} registrada{consultas.length !== 1 ? 's' : ''}</span>
+                      <span className="text-[12px] font-normal text-slate-400 ml-1">{consultas.length} registrada{consultas.length !== 1 ? 's' : ''}</span>
                     )}
                   </h3>
                   {consultasPerms.canWrite && (
@@ -505,7 +505,7 @@ export default function PacienteDetallePage() {
                         <div className={clsx('p-2 rounded-lg', s.color)}><s.icon className="w-5 h-5" /></div>
                         <div>
                           <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{s.value}</p>
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500">{s.label}</p>
+                          <p className="text-[12px] text-slate-400 dark:text-slate-500">{s.label}</p>
                         </div>
                       </div>
                     ))}
@@ -565,7 +565,7 @@ export default function PacienteDetallePage() {
                                   <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                     Consulta del {selConsulta.created_at?.split('T')[0]}
                                   </h4>
-                                  <p className="text-[10px] text-slate-400">ID: {selConsulta.id}</p>
+                                  <p className="text-[12px] text-slate-400">ID: {selConsulta.id}</p>
                                 </div>
                               </div>
                               <Link to={`/consultas/${selConsulta.id}`}
@@ -585,7 +585,7 @@ export default function PacienteDetallePage() {
 
                             {selConsulta.signos_vitales && (
                               <div>
-                                <h5 className="text-[10px] font-semibold uppercase text-slate-400 mb-2 mt-2 border-t border-slate-100 dark:border-slate-700 pt-3">Signos Vitales</h5>
+                                <h5 className="text-[12px] font-semibold uppercase text-slate-400 mb-2 mt-2 border-t border-slate-100 dark:border-slate-700 pt-3">Signos Vitales</h5>
                                 <div className="grid grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2">
                                   {[
                                     ['Talla', selConsulta.signos_vitales.talla],
@@ -607,7 +607,7 @@ export default function PacienteDetallePage() {
 
                             {selConsulta.medicamentos?.length > 0 && (
                               <div>
-                                <h5 className="text-[10px] font-semibold uppercase text-slate-400 mb-2 mt-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                                <h5 className="text-[12px] font-semibold uppercase text-slate-400 mb-2 mt-2 border-t border-slate-100 dark:border-slate-700 pt-3">
                                   Medicamentos ({selConsulta.medicamentos.length})
                                 </h5>
                                 <div className="space-y-1.5">

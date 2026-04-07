@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "expediente-clinico-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24
+ACCESS_TOKEN_EXPIRE_HOURS = int(os.environ.get("TOKEN_EXPIRE_HOURS", "24"))
 
 security = HTTPBearer()
 

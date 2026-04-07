@@ -32,15 +32,15 @@ DB_FILE = os.path.join(PROJECT_ROOT, "database", "expediente_clinico.db")
 TARGETS = {
     "Win10": {
         "dir": os.path.join(PROJECT_ROOT, "build", "ExpedienteClinico_Win10"),
-        "python_label": "Python 3.10, 3.11 o 3.12",
+        "python_label": "Python 3.10, 3.11, 3.12, 3.13 o 3.14",
         "python_url": "https://www.python.org/downloads/",
         "requirements": """\
-fastapi==0.135.1
-uvicorn==0.41.0
+fastapi==0.135.3
+uvicorn==0.43.0
 python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.22
-boto3==1.42.39
+python-multipart==0.0.24
+boto3>=1.35.0
 reportlab==4.4.9
 beautifulsoup4==4.12.3
 requests==2.31.0
@@ -457,10 +457,11 @@ pause
 
 
 def copy_env(build_dir):
-    """Copy .env from project root into the package if it exists."""
-    src = os.path.join(PROJECT_ROOT, ".env")
-    if os.path.exists(src):
-        shutil.copy2(src, os.path.join(build_dir, ".env"))
+    """Copy .env and .env.example from project root into the package."""
+    for name in [".env", ".env.example"]:
+        src = os.path.join(PROJECT_ROOT, name)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(build_dir, name))
 
 
 def generate_icon(build_dir):
