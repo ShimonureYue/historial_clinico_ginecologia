@@ -1,6 +1,7 @@
 """Usuarios CRUD endpoints with permissions management."""
 
 import hashlib
+import sqlite3
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional
@@ -106,7 +107,7 @@ def create_usuario(data: UsuarioCreate, user=Depends(require_admin)):
                    VALUES (?, ?, ?, ?, ?)""",
                 (data.nombre, data.correo, data.rol, password_hash, int(data.activo)),
             )
-        except Exception:
+        except sqlite3.IntegrityError:
             raise HTTPException(status_code=400, detail="El correo ya está registrado")
         new_id = cursor.lastrowid
         if data.permisos:
@@ -117,19 +118,24 @@ def create_usuario(data: UsuarioCreate, user=Depends(require_admin)):
 @router.put("/{user_id}")
 def update_usuario(user_id: int, data: UsuarioUpdate, user=Depends(require_admin)):
     with get_db() as conn:
-        if data.password:
-            password_hash = hashlib.sha256(data.password.encode()).hexdigest()
-            conn.execute(
-                """UPDATE usuarios SET nombre=?, correo=?, rol=?, password_hash=?, activo=?
-                   WHERE id=?""",
-                (data.nombre, data.correo, data.rol, password_hash, int(data.activo), user_id),
-            )
-        else:
-            conn.execute(
-                """UPDATE usuarios SET nombre=?, correo=?, rol=?, activo=?
-                   WHERE id=?""",
-                (data.nombre, data.correo, data.rol, int(data.activo), user_id),
-            )
+        try:
+            if data.password:
+                password_hash = hashlib.sha256(data.password.encode()).hexdigest()
+                result = conn.execute(
+                    """UPDATE usuarios SET nombre=?, correo=?, rol=?, password_hash=?, activo=?
+                       WHERE id=?""",
+                    (data.nombre, data.correo, data.rol, password_hash, int(data.activo), user_id),
+                )
+            else:
+                result = conn.execute(
+                    """UPDATE usuarios SET nombre=?, correo=?, rol=?, activo=?
+                       WHERE id=?""",
+                    (data.nombre, data.correo, data.rol, int(data.activo), user_id),
+                )
+        except sqlite3.IntegrityError:
+            raise HTTPException(status_code=400, detail="El correo ya está registrado")
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
         if data.permisos is not None:
             _save_permissions(conn, user_id, data.permisos)
         return {"message": "Usuario actualizado"}

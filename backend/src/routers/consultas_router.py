@@ -95,24 +95,28 @@ def list_consultas(
             count = conn.execute(
                 """SELECT COUNT(*) FROM consultas c
                    LEFT JOIN pacientes p ON p.id = c.paciente_id
-                   WHERE c.motivo LIKE ? OR c.diagnostico LIKE ?
-                   OR c.created_at LIKE ?
-                   OR (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?""",
+                   WHERE c.deleted_at IS NULL AND (
+                       c.motivo LIKE ? OR c.diagnostico LIKE ?
+                       OR c.created_at LIKE ?
+                       OR (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?)""",
                 (q, q, q, q),
             ).fetchone()[0]
             rows = conn.execute(
                 """SELECT c.* FROM consultas c
                    LEFT JOIN pacientes p ON p.id = c.paciente_id
-                   WHERE c.motivo LIKE ? OR c.diagnostico LIKE ?
-                   OR c.created_at LIKE ?
-                   OR (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?
+                   WHERE c.deleted_at IS NULL AND (
+                       c.motivo LIKE ? OR c.diagnostico LIKE ?
+                       OR c.created_at LIKE ?
+                       OR (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?)
                    ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",
                 (q, q, q, q, limit, offset),
             ).fetchall()
         else:
-            count = conn.execute("SELECT COUNT(*) FROM consultas").fetchone()[0]
+            count = conn.execute(
+                "SELECT COUNT(*) FROM consultas WHERE deleted_at IS NULL"
+            ).fetchone()[0]
             rows = conn.execute(
-                "SELECT * FROM consultas ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                "SELECT * FROM consultas WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ? OFFSET ?",
                 (limit, offset),
             ).fetchall()
         results = [_enrich_consulta(conn, dict(r)) for r in rows]
@@ -123,7 +127,7 @@ def list_consultas(
 def list_consultas_by_paciente(paciente_id: int, user=Depends(require_permission("consultas", "lectura"))):
     with get_db() as conn:
         rows = conn.execute(
-            "SELECT * FROM consultas WHERE paciente_id=? ORDER BY created_at DESC",
+            "SELECT * FROM consultas WHERE paciente_id=? AND deleted_at IS NULL ORDER BY created_at DESC",
             (paciente_id,),
         ).fetchall()
         return [_enrich_consulta(conn, dict(r)) for r in rows]
@@ -132,7 +136,9 @@ def list_consultas_by_paciente(paciente_id: int, user=Depends(require_permission
 @router.get("/{consulta_id}")
 def get_consulta(consulta_id: int, user=Depends(require_permission("consultas", "lectura"))):
     with get_db() as conn:
-        row = conn.execute("SELECT * FROM consultas WHERE id=?", (consulta_id,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM consultas WHERE id=? AND deleted_at IS NULL", (consulta_id,)
+        ).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Consulta no encontrada")
         return _enrich_consulta(conn, dict(row))

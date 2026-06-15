@@ -72,10 +72,16 @@ STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.pat
 if os.path.isdir(STATIC_DIR):
     app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="assets")
 
+    _STATIC_ROOT = os.path.abspath(STATIC_DIR)
+
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         """Serve the SPA index.html for any non-API route."""
-        file_path = os.path.join(STATIC_DIR, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+        index_path = os.path.join(_STATIC_ROOT, "index.html")
+        # Resolve the requested path and ensure it stays within STATIC_DIR
+        # (guards against path traversal like ../../etc/passwd).
+        requested = os.path.abspath(os.path.join(_STATIC_ROOT, full_path))
+        if (requested == _STATIC_ROOT or requested.startswith(_STATIC_ROOT + os.sep)) \
+                and os.path.isfile(requested):
+            return FileResponse(requested)
+        return FileResponse(index_path)
