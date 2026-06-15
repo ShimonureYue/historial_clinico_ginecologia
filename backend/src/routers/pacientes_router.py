@@ -50,10 +50,11 @@ def list_pacientes(
     with get_db() as conn:
         if search:
             q = f"%{search}%"
-            where = """WHERE (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?
+            where = """WHERE p.deleted_at IS NULL AND (
+                   (p.nombre || ' ' || COALESCE(p.a_paterno,'') || ' ' || COALESCE(p.a_materno,'')) LIKE ?
                    OR p.nombre LIKE ? OR p.a_paterno LIKE ?
                    OR p.a_materno LIKE ? OR CAST(p.id AS TEXT) LIKE ?
-                   OR p.curp LIKE ?"""
+                   OR p.curp LIKE ?)"""
             params = (q, q, q, q, q, q)
             count = conn.execute(
                 f"SELECT COUNT(*) FROM pacientes p {where}", params,
@@ -67,11 +68,14 @@ def list_pacientes(
                 (*params, limit, offset),
             ).fetchall()
         else:
-            count = conn.execute("SELECT COUNT(*) FROM pacientes").fetchone()[0]
+            count = conn.execute(
+                "SELECT COUNT(*) FROM pacientes WHERE deleted_at IS NULL"
+            ).fetchone()[0]
             rows = conn.execute(
                 """SELECT p.*, d.telefono, d.celular, d.ciudad, d.estado
                    FROM pacientes p
                    LEFT JOIN direcciones d ON d.paciente_id = p.id
+                   WHERE p.deleted_at IS NULL
                    ORDER BY p.created_at DESC LIMIT ? OFFSET ?""",
                 (limit, offset),
             ).fetchall()
@@ -81,7 +85,9 @@ def list_pacientes(
 @router.get("/{paciente_id}")
 def get_paciente(paciente_id: int, user=Depends(require_permission("pacientes", "lectura"))):
     with get_db() as conn:
-        row = conn.execute("SELECT * FROM pacientes WHERE id = ?", (paciente_id,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM pacientes WHERE id = ? AND deleted_at IS NULL", (paciente_id,)
+        ).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Paciente no encontrado")
         result = dict(row)
